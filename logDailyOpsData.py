@@ -1,4 +1,3 @@
-import os
 import openai
 import json
 import datetime
@@ -7,6 +6,12 @@ client = openai.OpenAI(api_key="API KEY HERE")
 
 #  input message 
 message = "hoy me compré 5 kilos de fertilizante a 50.000"
+
+# test messages: 
+# "ayer compré 10 litros de agua a 1.000"
+# "hoy vendí 2 kilos de café a 5.000 cada uno"
+# "hoy compré 1 saco de abono a 30.000"
+# "ayer vendí 3 litros de leche a 2.000 cada uno"
 
 today = datetime.date.today()
 inferred_date = None
