@@ -5,12 +5,14 @@ import openai
 import uuid
 
 from dotenv import load_dotenv
+from datetime import date
 from openai import OpenAI
-from db.session import get_session, create_tables
-from db.models import Transaction, ActivityCategory, TxnType
+
+from app.db.session import get_session, create_tables
+from app.db.models import Transaction, ActivityCategory, TxnType
+from app.reporting import build_text_report
 
 load_dotenv()
-
 client = openai.OpenAI(api_key="")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -146,3 +148,14 @@ with get_session() as db:
     db.flush()      # get tx.id without an extra commit
     print(f"\nSaved Transaction ID: {tx.id}")
 
+# Print reports to console (you can call any/all you want)
+farm_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
+with get_session() as db:
+    print("\n--- REPORTES ---")
+    print(build_text_report(db, farm_id, period="semanal",  ref=date.today()))
+    print()
+    print(build_text_report(db, farm_id, period="mensual",  ref=date.today()))
+    print()
+    print(build_text_report(db, farm_id, period="quarter",  ref=date.today()))
+    print()
+    print(build_text_report(db, farm_id, period="anual",    ref=date.today()))
