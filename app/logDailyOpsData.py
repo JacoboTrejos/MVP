@@ -13,12 +13,11 @@ from app.db.models import Transaction, ActivityCategory, TxnType
 from app.reporting import build_text_report
 
 load_dotenv()
-client = openai.OpenAI(api_key="")
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
-#  input message 
-message = "hoy vendí 2 kilos de café a 5.000 cada uno"
+#  hardcoded input message 
+message = "hoy compré 1 saco de abono a 30.000"
 
 # test messages: 
 # "hoy me compré 5 kilos de fertilizante a 50.000"
@@ -27,6 +26,7 @@ message = "hoy vendí 2 kilos de café a 5.000 cada uno"
 # "hoy compré 1 saco de abono a 30.000"
 # "ayer vendí 3 litros de leche a 2.000 cada uno"
 
+# set dates: hoy y ayer
 today = datetime.date.today()
 inferred_date = None
 msg_lower = message.lower()
@@ -102,8 +102,7 @@ result["farm_id"] = "00000000-0000-0000-0000-000000000001"
 
 print(json.dumps(result, ensure_ascii=False, indent=2))
 
-# 5) Save into PostgreSQL
-# ---------------------------
+# Save into PostgreSQL
 def to_int_or_none(x):
     if x in (None, "null", ""):
         return None
@@ -121,7 +120,6 @@ def to_uuid(x):
         return None
 
 def map_activity(s: str) -> ActivityCategory:
-    # Trust the exact strings coming from the extractor
     return ActivityCategory(s)
 
 def map_type(s: str) -> TxnType:

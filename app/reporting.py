@@ -15,7 +15,7 @@ class DateRange:
 
 
 def _week_range(d: date) -> DateRange:
-    # Monday-Sunday range for the week containing d
+    # Monday-Sunday range for the week
     start = d - timedelta(days=d.weekday())
     end = start + timedelta(days=6)
     return DateRange(start, end)
