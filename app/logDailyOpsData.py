@@ -99,3 +99,50 @@ result["currency"] = "COP"
 result["farm_id"] = "00000000-0000-0000-0000-000000000001"
 
 print(json.dumps(result, ensure_ascii=False, indent=2))
+
+# 5) Save into PostgreSQL
+# ---------------------------
+def to_int_or_none(x):
+    if x in (None, "null", ""):
+        return None
+    try:
+        return int(round(float(x)))
+    except Exception:
+        return None
+
+def to_uuid(x):
+    if not x:
+        return None
+    try:
+        return uuid.UUID(str(x))
+    except Exception:
+        return None
+
+def map_activity(s: str) -> ActivityCategory:
+    # Trust the exact strings coming from the extractor
+    return ActivityCategory(s)
+
+def map_type(s: str) -> TxnType:
+    return TxnType(s)
+
+create_tables()  # create enums + table if not present
+
+with get_session() as db:
+    tx = Transaction(
+        farm_id=to_uuid(result["farm_id"]) or uuid.UUID("00000000-0000-0000-0000-000000000001"),
+        date=datetime.date.fromisoformat(result["date"]),
+        activitycategory=map_activity(result["activitycategory"]),
+        type=map_type(result["type"]),
+        description=result.get("description"),
+        quantity=to_int_or_none(result.get("quantity")),
+        unit=(result.get("unit") or None),
+        unit_price=to_int_or_none(result.get("unit_price")),
+        total_value=to_int_or_none(result.get("total_value")),
+        currency=result.get("currency") or "COP",
+        source_message_id=to_uuid(result.get("source_message_id")),
+        # created_at is DB-default NOW()
+    )
+    db.add(tx)
+    db.flush()      # get tx.id without an extra commit
+    print(f"\nSaved Transaction ID: {tx.id}")
+
